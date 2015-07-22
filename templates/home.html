@@ -41,6 +41,12 @@
 </tr>
 {%endfor%}
 </table>
+{%if runtime.unchecked_modules|length > 0%}
+<h2>Submodules not in this list</h2>
+<ul>
+    {%for um in runtime.unchecked_modules%}<li>{{um}}</li>{%endfor%}
+</ul>
+{%endif%}
 <h2>Legend</h2>
 <h4>Repository status</h4>
 <ul>

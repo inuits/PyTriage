@@ -89,8 +89,6 @@ class Ticket(TriageObject):
     def set_external_ticket(self):
         self.external = self.repository.source.externalticket(self.repository, self.reference)
         self.repository.source.tickets_status.add(self.external.status)
-        print self.repository.source.tickets_status
-
 
 class Source(TriageObject):
     def __init__(self, *args, **kwargs):
@@ -235,6 +233,7 @@ class Repository(TriageObject):
             if not remote_obj.properties.has_key(key):
                 remote_obj.add_property(key, fmt.vformat(val, [], remote_obj.properties))
         if remote == 'internal':
+            self.runtime.modules_urls.add(normalizegiturl(remote_obj.url))
             self.internal = remote_obj
         else:
             self.upstream = remote_obj
@@ -297,10 +296,13 @@ class Repository(TriageObject):
 
         repo.head.set_reference(branch)
         repo.head.reset(gitremote.refs[remote.branch].commit, index=True, working_tree=True)
-        if not remote.parent.check_property('disable_update') and remote.parent.check_property('super'):
+        if remote.parent.check_property('super'):
             for sm in repo.submodules:
-                logging.debug('Updating %s...' % sm.path)
-                sm.update(force=True, recursive=False)
+                self.runtime.submodules_urls.add(normalizegiturl(sm.url))
+                print normalizegiturl(sm.url)
+                if not remote.parent.check_property('disable_update'):
+                    logging.debug('Updating %s...' % sm.path)
+                    sm.update(force=True, recursive=False)
 
     def add_remotes(self):
         self.add_remote('internal')
@@ -320,6 +322,8 @@ class TriageRuntime:
         self.repositories = {}
         self.super_repositories = {}
         self.parse_options()
+        self.submodules_urls = set()
+        self.modules_urls = set()
         self.title = 'Git Repositories Barometer'
 
     def get_status_color_values(self):
@@ -462,6 +466,8 @@ class TriageRuntime:
         logging.debug('Comparing versions')
         self.compare_submodules()
         self.compare_submodules_with_super()
+        logging.debug('Checking unchecked modules')
+        self.get_unchecked_modules()
         logging.debug('Generating report')
         self.generate_report()
 
@@ -482,6 +488,9 @@ class TriageRuntime:
                         t.add_property('url', fmt.vformat(sm.ticket_address, [], t.properties))
                         t.set_external_ticket()
                         sm.tickets.append(t)
+
+    def get_unchecked_modules(self):
+        self.unchecked_modules = self.submodules_urls.difference(self.modules_urls)
 
     def generate_report(self):
         env = Environment(loader=PackageLoader('pytriage', 'templates'))

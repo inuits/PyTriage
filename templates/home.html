@@ -35,7 +35,7 @@
         {%- for super_repo in repository.diffs %}
         <span style="font-family:monospace" class="label label-{% if repository.diffs[super_repo].ahead > 0 %}danger
         {%- elif repository.diffs[super_repo].behind == 0 -%}success
-        {%- elif diffs[super_repo].behind > 0%}warning{% else %}default{%endif%}">{{super_repo}}</span>
+        {%- elif repository.diffs[super_repo].behind > 0%}warning{% else %}default{%endif%}">{{super_repo}}</span>
         {%endfor%}
 </td>
 </tr>

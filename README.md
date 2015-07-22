@@ -122,6 +122,9 @@ This script is configured with a `.ini` file as follow:
     internal_project = lvm
     internal_path = puppetmaster/modules/{internal_project}
 
+# Plugins
+
+See `plugins/*.py`
 
 # Result
 

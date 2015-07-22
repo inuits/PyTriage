@@ -5,6 +5,7 @@ from git import Repo
 from string import Formatter
 from configparser import ConfigParser
 from time import ctime
+from jinja2 import Environment, PackageLoader
 
 class NamedRepo(Repo):
     def __init__(self, name, *args, **kwargs):
@@ -12,8 +13,6 @@ class NamedRepo(Repo):
         return super(NamedRepo, self).__init__(*args, **kwargs)
     def module(self):
         return self
-
-from jinja2 import Environment, PackageLoader
 
 def normalizegiturl(url):
     if url.endswith('.git'):
@@ -38,11 +37,13 @@ def numberfilter(number):
         return 'N/A'
     return number
 
-def numberclassfilter(number):
+def numberclassfilter(number, diff):
     if number is None:
         return 'default'
     if number == 0:
         return 'success'
+    elif len(diff.common_commits) == 0:
+        return 'danger'
     else:
         return 'primary'
 

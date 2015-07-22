@@ -1,0 +1,9 @@
+*.pyc
+reports/*.html
+*-upstream
+*-internal
+bin
+lib
+include
+reports?
+pip-selfcheck.json

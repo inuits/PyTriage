@@ -49,11 +49,11 @@
     </tr>
     <tr>
     <tr>
-        <td class="text-center"><span class="label label-{{repository.behind|numberclassfilter}}">{{repository.behind|numberfilter}}</span></td>
-        <td class="text-center"><span class="label label-{{repository.ahead|numberclassfilter}}">{{repository.ahead|numberfilter}}</span></td>
+        <td class="text-center"><span class="label label-{{repository.behind|numberclassfilter(repository.diff)}}">{{repository.behind|numberfilter}}</span></td>
+        <td class="text-center"><span class="label label-{{repository.ahead|numberclassfilter(repository.diff)}}">{{repository.ahead|numberfilter}}</span></td>
         {%- for srepo in repository.diffs.values() %}
-        <td class="text-center"><span class="label label-{{srepo.behind|numberclassfilter}}">{{srepo.behind|numberfilter}}</span></td>
-        <td class="text-center"><span class="label label-{{srepo.ahead|numberclassfilter}}">{{srepo.ahead|numberfilter}}</span></td>
+        <td class="text-center"><span class="label label-{{srepo.behind|numberclassfilter(srepo)}}">{{srepo.behind|numberfilter}}</span></td>
+        <td class="text-center"><span class="label label-{{srepo.ahead|numberclassfilter(srepo)}}">{{srepo.ahead|numberfilter}}</span></td>
         {%endfor%}
     </tr>
 </table>
@@ -85,7 +85,7 @@
 <div class="state state-open">This repository is up-to-date {%if diff.target != "upstream"%}in super repository{%else%}with{%endif%} {{diff.target}}.</div>
 {%else%}
 {% if diff.common_commits|length == 0 %}
-<div class="flash flash-error">The repositories have no common commits, they seem to be different!</div>
+<div class="alert alert-danger">The repositories have no common commits, they seem to be different!</div>
 {%endif%}
 {%if diff.behind > 0%}
 <div class="state pad state-closed">This repository is behind {%if diff.target != "upstream"%}in super repository {%endif%}{{diff.target}}.</div>

@@ -299,7 +299,6 @@ class Repository(TriageObject):
         if remote.parent.check_property('super'):
             for sm in repo.submodules:
                 self.runtime.submodules_urls.add(normalizegiturl(sm.url))
-                print normalizegiturl(sm.url)
                 if not remote.parent.check_property('disable_update'):
                     logging.debug('Updating %s...' % sm.path)
                     sm.update(force=True, recursive=False)

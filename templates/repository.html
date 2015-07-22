@@ -1,0 +1,118 @@
+{%extends "base.html"%}
+{%block title%}{{repository.name}}{%endblock%}
+{%block content%}
+
+<h1>{{repository.name}}</h1>
+<p><a class="btn btn-default" href="index.html">Back</a></p>
+{%macro reposhow(repo)%}
+{% if repo %}
+<h3>{{repo.name}} <a class="btn btn-xs btn-default" href="{{repo.http_address}}">{{repo.source.name}}</a></h3>
+        <pre>git clone -b {{repo.branch}} {{repo.url}} {{repo.name}}</pre>
+        {% if repo.tickets|length > 0 %}<h4>Tickets</h4>
+<table class="table table-bordered table-striped">
+    <tr>
+        <th class="text-center">Reference</th>
+        <th class="text-center">Status</th>
+        <th>Title</th>
+    </tr>
+        {% for ticket in repo.tickets-%}
+    <tr>
+        <td class="text-center"><a class="btn btn-xs btn-{{ticket.external.status[0]}}" href="{{ticket.url}}">{{repo.ticket_prefix}}{{ticket.reference}}</a>
+            <td class="text-center">{{ticket.external.status[1]}}</td><td>{{ticket.external.title}}</td>
+        </tr>
+            {%endfor%}
+        </table>
+            {%endif%}
+{%endif%}
+
+{%endmacro%}
+{{reposhow(repository.internal)}}
+{{reposhow(repository.upstream)}}
+<h2>Key numbers</h2>
+
+<table class="table-condensed table table-bordered table-striped">
+    <tr>
+        <th class="text-center" colspan='2'>Upstream</th>
+        {%- for srepo in repository.diffs %}
+        <th class="text-center" colspan='2'>
+            {{repository.diffs[srepo].target}}
+        </th>
+        {%endfor%}
+    </tr>
+    <tr>
+        <th class="text-center">behind</th>
+        <th class="text-center">ahead</th>
+        {%- for srepo in repository.diffs %}
+        <th class="text-center">behind</th>
+        <th class="text-center">ahead</th>
+        {%endfor%}
+    </tr>
+    <tr>
+    <tr>
+        <td class="text-center"><span class="label label-{{repository.behind|numberclassfilter}}">{{repository.behind|numberfilter}}</span></td>
+        <td class="text-center"><span class="label label-{{repository.ahead|numberclassfilter}}">{{repository.ahead|numberfilter}}</span></td>
+        {%- for srepo in repository.diffs.values() %}
+        <td class="text-center"><span class="label label-{{srepo.behind|numberclassfilter}}">{{srepo.behind|numberfilter}}</span></td>
+        <td class="text-center"><span class="label label-{{srepo.ahead|numberclassfilter}}">{{srepo.ahead|numberfilter}}</span></td>
+        {%endfor%}
+    </tr>
+</table>
+
+{%macro tableheader(title)%}
+<table class="table-condensed table table-bordered table-striped">
+    <tr>
+        <th>{{title}}</th>
+    </tr>
+{% endmacro %}
+{%macro pprintcommit(commit)%}
+    <tr>
+        <td>
+            {{commit.url("btn btn-large btn-default pull-right") }}
+    <div style="font-size:1.5em">{{commit.message() }}</div>
+    <div style="font-size:0.8em">authored by {{commit.author() }} on {{commit.adate() }}</div>
+        </td>
+    </tr>
+{% endmacro %}
+{%macro tablefooter()%}
+</table>
+{% endmacro %}
+{% macro repodiff(diff) %}
+<h3>{{diff.name}}</h3>
+{% if not diff or not diff.is_valid %}
+<div class="state state-merged">N/A.</div>
+{%else%}
+{% if diff.behind == 0 and diff.ahead == 0 %}
+<div class="state state-open">This repository is up-to-date {%if diff.target != "upstream"%}in super repository{%else%}with{%endif%} {{diff.target}}.</div>
+{%else%}
+{% if diff.common_commits|length == 0 %}
+<div class="flash flash-error">The repositories have no common commits, they seem to be different!</div>
+{%endif%}
+{%if diff.behind > 0%}
+<div class="state pad state-closed">This repository is behind {%if diff.target != "upstream"%}in super repository {%endif%}{{diff.target}}.</div>
+{{tableheader("%s commits behind" % diff.behind)}}
+{% for commit in diff.unique_commits[diff.repo2.name]%}
+{{pprintcommit(commit)}}
+{%endfor%}
+{{tablefooter()}}
+{%endif%}
+{%if diff.ahead > 0%}
+<div class="state pad state-closed">This repository is ahead {%if diff.target != "upstream"%}in super repository {%endif%}{{diff.target}}.</div>
+{{tableheader("%s commits ahead" % diff.ahead)}}
+{% for commit in diff.unique_commits[diff.repo1.name]%}
+{{pprintcommit(commit)}}
+{%endfor%}
+{{tablefooter()}}
+{%endif%}
+{% endif %}
+{%endif%}
+{% endmacro %}
+
+{{repodiff(repository.diff)}}
+        {%- for srepo in repository.diffs.values() %}
+{{repodiff(srepo)}}
+        {%endfor%}
+
+        <hr/>
+        <p>Generated on {{gdate}}</p>
+{%endblock%}
+

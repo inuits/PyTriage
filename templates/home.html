@@ -1,0 +1,75 @@
+{%extends "base.html"%}
+{%block title%}Overview{%endblock%}
+{%block content%}
+
+<h1>Overview - {{runtime.title}}</h1>
+<p>See at bottom for the legend.</p>
+<table class="table table-bordered table-striped">
+    <tr>
+        <th class="text-center">Name</th>
+        <th class="text-center">Internal</th>
+        <th class="text-center">Upstream</th>
+        <th class="text-center">To push</th>
+        <th class="text-center">To pull</th>
+        <th class="text-center">Internal tickets</th>
+        <th class="text-center">Upstream tickets</th>
+        <th class="text-center">Super repositories</th>
+    </tr>
+{% for repository in repos %}
+    <tr>
+        <td class="text-center"><a class="btn btn-xs btn-{{repository.status_color()}}" href="report-{{ repository.name }}.html">{{ repository.name }}</a></td>
+        <td class="text-center">{% if repository.internal %}<a class="btn btn-xs btn-default" href="{{repository.internal.http_address}}">{{repository.internal.source.name}}<a>{%else%}-{%endif%}</td>
+        <td class="text-center">{% if repository.upstream %}<a class="btn btn-xs btn-default" href="{{repository.upstream.http_address}}">{{repository.upstream.source.name}}<a>{%else%}-{%endif%}</td>
+                <td class="text-center">
+                    <span class="label label-{{repository.ahead|numberclassfilter}}">{{repository.ahead|numberfilter}}</span></td>
+        <td class="text-center">
+            <span class="label label-{{repository.behind|numberclassfilter}}">{{repository.behind|numberfilter}}</span></td>
+
+        <td class="text-center">{% if repository.internal %}{% if repository.internal.tickets|length > 0 %}{% for ticket in repository.internal.tickets-%}
+            <a class="btn btn-xs btn-{{ticket.external.status[0]}}" href="{{ticket.url}}">{{repository.internal.ticket_prefix}}{{ticket.reference}}</a>
+{%endfor%}{%else%}-{%endif%}{%else%}-{%endif%}</td class="text-center">
+        <td class="text-center">{% if repository.upstream %}{% if repository.upstream.tickets|length > 0 %}{% for ticket in repository.upstream.tickets-%}
+            <a class="btn btn-xs btn-{{ticket.external.status[0]}}" href="{{ticket.url}}">{{repository.upstream.ticket_prefix}}{{ticket.id}}</a>
+{%endfor%}{%else%}-{%endif%}{%else%}-{%endif%}</td class="text-center">
+        <td class="text-center">
+        {%- for super_repo in repository.diffs %}
+        <span style="font-family:monospace" class="label label-{% if repository.diffs[super_repo].ahead > 0 %}danger
+        {%- elif repository.diffs[super_repo].behind == 0 -%}success
+        {%- elif diffs[super_repo].behind > 0%}warning{% else %}default{%endif%}">{{super_repo}}</span>
+        {%endfor%}
+</td>
+</tr>
+{%endfor%}
+</table>
+<h2>Legend</h2>
+<h4>Repository status</h4>
+<ul>
+    {%- for status in runtime.get_status_color_values() %}
+    <li><a href="#" class="btn btn-xs btn-{{runtime.get_color(status)}}">{{runtime.get_color_info(status)[0]}}</a> {{runtime.get_color_info(status)[1]}}</li>
+    {%endfor%}
+</ul>
+<h4>Super repos</h4>
+<ul>
+    {%- for super_repo in runtime.super_repositories.values() %}
+    <li><span style="font-family:monospace" class="label label-info">{{super_repo.short_identifier}}</span> {{super_repo.name}}</li>
+    {%endfor%}
+    <li><span style="font-family:monospace" class="label label-danger">@</span> Repo ahead in super repository</li>
+    <li><span style="font-family:monospace" class="label label-warning">@</span> Repo behind in super repository</li>
+    <li><span style="font-family:monospace" class="label label-success">@</span> Repo up-to-date in super repository</li>
+    <li><span style="font-family:monospace" class="label label-default">@</span> Repo not in super repository</li>
+</ul>
+<h4>Ticket status</h4>
+    {%- for source in runtime.sources.values() %}
+    {%if source.tickets_status|length > 0%}
+    <h5>{{source.name}}</h5>
+<ul>
+    {%- for status in source.tickets_status %}
+    <li><a class="btn btn-xs btn-{{status[0]}}">{{source.ticket_prefix}}</a> {{status[1]}}</li>
+    {%endfor%}
+</ul>
+{%endif%}
+    {%endfor%}
+        <p>Generated on {{gdate}}</p>
+
+{%endblock%}
+

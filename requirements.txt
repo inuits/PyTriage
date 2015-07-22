@@ -1,0 +1,13 @@
+configparser<3.5.0
+gitdb==0.6.4
+argparse
+github3.py==0.9.4
+git+https://github.com/roidelapluie/GitPython.git@master
+Jinja2==2.7.3
+MarkupSafe==0.23
+python-dateutil==2.4.2
+python-redmine==1.2.0
+requests==2.7.0
+six==1.9.0
+smmap==0.9.0
+uritemplate.py==0.3.0

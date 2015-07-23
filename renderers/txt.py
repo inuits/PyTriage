@@ -21,26 +21,20 @@ Repositories
             repos = [k[1] for k in sorted(runtime.repositories.items(), key=lambda x: x[0])]
             for repository in repos:
                 repo = repository
-                f.write('%s\n' % repository.name)
-                for i in xrange(0, len(repository.name)):
-                    f.write('-')
-                f.write('\n')
 
                 if not repository.internal:
                     f.write('Repository has no internal remote\n')
                     continue
 
+                f.write('%s\n' % repository.name)
+                for i in xrange(0, len(repository.name)):
+                    f.write('-')
+                f.write('\n')
+
+
                 if not repository.upstream:
-                    f.write('Repository has no upstream remote\n')
+                    pass
                 else:
-                    if repo.behind == 0:
-                        f.write('Repository is not behind upstream - good.\n\n')
-                    else:
-                        f.write('Repository is %s commits behind upstream!\n\n' % repo.behind)
-                    if repo.ahead == 0:
-                        f.write('Repository is not ahead upstream - good.\n\n')
-                    else:
-                        f.write('Repository is %s commits ahead upstream!\n\n' % repo.ahead)
                     if len(repo.internal.tickets) > 0:
                         f.write('Internal tickets:\n\n')
                         for ticket in repo.internal.tickets:
@@ -73,14 +67,14 @@ Repositories
                     for diff in repo.diffs.values():
                         if diff.behind is not None:
                             if diff.behind == 0:
-                                f.write('Repository is not behind in super repo %s - good.\n\n' % diff.target)
+                                pass
                             else:
                                 f.write('Repository is %s commits behind in super repo %s!\n\n' % (diff.behind, diff.target))
                                 f.write('Is there already a ticket for that?\n')
                                 f.write('Ticket number:\n')
                                 f.write('Comments:\n\n\n')
                             if diff.ahead == 0:
-                                f.write('Repository is not ahead in super repo %s - good.\n\n' % diff.target)
+                                pass
                             else:
                                 f.write('Repository is %s commits ahead in super repo %s!\n\n' % (diff.ahead, diff.target))
                                 f.write('Is there already a ticket for that?\n')

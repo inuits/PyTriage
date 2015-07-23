@@ -300,8 +300,11 @@ class Repository(TriageObject):
             for sm in repo.submodules:
                 self.runtime.submodules_urls.add(normalizegiturl(sm.url))
                 if not remote.parent.check_property('disable_update'):
-                    logging.debug('Updating %s...' % sm.path)
-                    sm.update(force=True, recursive=False)
+                    if sm.hexsha != sm.module().commit().hexsha:
+                        logging.debug('Updating %s...' % sm.path)
+                        sm.update(force=True, recursive=False)
+                    else:
+                        logging.debug('%s is up to date at %s...' % (sm.path, sm.hexsha))
 
     def add_remotes(self):
         self.add_remote('internal')

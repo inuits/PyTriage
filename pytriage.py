@@ -4,8 +4,6 @@ import argparse
 from git import Repo
 from string import Formatter
 from configparser import ConfigParser
-from time import ctime
-from jinja2 import Environment, PackageLoader
 from git.exc import InvalidGitRepositoryError
 
 class NamedRepo(Repo):
@@ -24,29 +22,6 @@ def normalizegiturl(url):
         return normalizegiturl('ssh%s' % url[7:])
     return url
 
-def commitmessagefilter(message):
-    firstline = message.split("\n")[0].encode("unicode-escape")
-    if len(firstline) > 80:
-        return '%s...' % firstline[0:80]
-    return firstline
-
-def datetimefilter(date):
-    return ctime(date)
-
-def numberfilter(number):
-    if number is None:
-        return 'N/A'
-    return number
-
-def numberclassfilter(number, diff):
-    if number is None:
-        return 'default'
-    if number == 0:
-        return 'success'
-    elif len(diff.common_commits) == 0:
-        return 'danger'
-    else:
-        return 'primary'
 
 class LazyFormatter(Formatter):
     def __init__(self, namespace={}):
@@ -116,7 +91,9 @@ class TriageCommit(TriageObject):
         self.repo = repo
 
     def get_url(self):
-        return fmt.format(self.repo.commit_address, id=self.commit.hexsha)
+        if self.repo.properties.has_key('commit_address'):
+            return fmt.format(self.repo.commit_address, id=self.commit.hexsha)
+        return '#'
 
     def url(self, cssclass=""):
         return '<a href="%s" class="%s">%s</a>' % (self.get_url(), cssclass,self.commit.hexsha[0:8])
@@ -129,9 +106,6 @@ class TriageCommit(TriageObject):
         if len(msg) > 80:
             return '%s...' % msg[0:80]
         return msg
-
-    def adate(self):
-        return datetimefilter(self.commit.authored_date)
 
 class CommitDiff(TriageObject):
     def __init__(self, repo1, repo2, target, src1, src2, *args, **kwargs):
@@ -287,7 +261,7 @@ class Repository(TriageObject):
                 repo.git.submodule('sync')
             logging.debug('Fetching remote for %s. done.' % remote.name)
         if not remote.branch in gitremote.refs:
-            logging.error('Can not find %s branch in %s')
+            logging.error('Can not find %s branch in %s' % (remote.branch, remote.name))
             exit(1)
         if not 'master' in repo.heads:
             branch = repo.create_head('master', gitremote.refs[remote.branch]).set_tracking_branch(gitremote.refs[remote.branch])
@@ -400,10 +374,13 @@ class TriageRuntime:
 
 
     def set_config(self, config, section):
+        self.renderers = []
         logging.debug('Setting configuration')
         for (key, val) in config.items(section):
             if key == 'title':
                 self.title = val
+            if key == 'renderers':
+                self.renderers = val.split()
 
     def set_defaults(self, config, section):
         logging.debug('Setting defaults')
@@ -477,7 +454,7 @@ class TriageRuntime:
         logging.debug('Checking unchecked modules')
         self.get_unchecked_modules()
         logging.debug('Generating report')
-        self.generate_report()
+        self.generate_reports()
 
     def parse_tickets(self):
         for (name, repository) in self.repositories.items():
@@ -500,20 +477,12 @@ class TriageRuntime:
     def get_unchecked_modules(self):
         self.unchecked_modules = self.submodules_urls.difference(self.modules_urls)
 
-    def generate_report(self):
-        env = Environment(loader=PackageLoader('pytriage', 'templates'))
-        env.filters['datetimefilter'] = datetimefilter
-        env.filters['numberfilter'] = numberfilter
-        env.filters['numberclassfilter'] = numberclassfilter
-        env.filters['commitmessage'] = commitmessagefilter
-        with open('reports/index.html', 'w') as f:
-            template = env.get_template('home.html')
-            repos = [k[1] for k in sorted(self.repositories.items(), key=lambda x: x[0])]
-            f.write(template.render(runtime = self, repos = repos, gdate = ctime()))
-        repo_template = env.get_template('repository.html')
-        for repository in self.repositories.values():
-            with open('reports/report-%s.html' % repository.name, 'w') as f:
-                f.write(repo_template.render(runtime = self, repository = repository, gdate = ctime()))
+    def generate_reports(self):
+        for report in self.renderers:
+            loadedplugin = __import__('renderers.%s' % report)
+            renderer = getattr(loadedplugin, report).Renderer
+            renderer(self).render()
+
 
 
 if __name__ == '__main__':

@@ -69,7 +69,7 @@
         <td>
             {{commit.url("btn btn-large btn-default pull-right") }}
     <div style="font-size:1.5em">{{commit.message() }}</div>
-    <div style="font-size:0.8em">authored by {{commit.author() }} on {{commit.adate() }}</div>
+    <div style="font-size:0.8em">authored by {{commit.author() }} on {{commit.commit.authored_date|datetimefilter }}</div>
         </td>
     </tr>
 {% endmacro %}

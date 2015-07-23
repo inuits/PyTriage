@@ -6,6 +6,7 @@ except ImportError:
 
 class Ticket:
     def __init__(self, repository, reference):
+        self.reference = reference
         try:
             self.redmine = Redmine(repository.source.apiurl, username = repository.source.apikey)
             self.issue = self.redmine.issue.get(int(reference))

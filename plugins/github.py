@@ -5,6 +5,7 @@ except:
 
 class Ticket:
     def __init__(self, repository, reference):
+        self.reference = reference
         try:
             self.pull_request = github3.pull_request(repository.username, repository.project, reference)
             self.title = self.pull_request.title

@@ -3,6 +3,7 @@
 {%block content%}
 
 <h1>Overview - {{runtime.title}}</h1>
+{%if runtime.extra_heading%}{{runtime.extra_heading}}{%endif%}
 <p>See at bottom for the legend.</p>
 <table class="table table-bordered table-striped">
     <tr>

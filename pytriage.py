@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import logging
 import argparse
+import threading
 from git import Repo
 from string import Formatter
 from configparser import ConfigParser
@@ -460,11 +461,13 @@ class TriageRuntime:
     def run(self):
         logging.debug('Parsing configuration...')
         self.parse_configuration()
-        logging.debug('Parse Tickets...')
-        self.parse_tickets()
-        logging.debug('Comparing versions')
-        self.compare_submodules()
-        self.compare_submodules_with_super()
+        a = threading.Thread(target=self.parse_tickets)
+        b = threading.Thread(target=self.compare_submodules)
+        c = threading.Thread(target=self.compare_submodules_with_super)
+        for t in [a, b, c]:
+            t.start()
+        for t in [a, b, c]:
+            t.join()
         logging.debug('Checking unchecked modules')
         self.get_unchecked_modules()
         logging.debug('Generating report')

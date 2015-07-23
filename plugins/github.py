@@ -17,12 +17,12 @@ class Ticket:
 
     def get_status(self):
         if self.pull_request.closed_at:
-            if self.pull_request.is_merged:
+            if self.pull_request.is_merged():
                 return ('success', 'closed/merged')
             else:
                 return('success', 'closed')
         else:
-            if self.pull_request.is_merged:
+            if self.pull_request.is_merged():
                 return ('info', 'closed/merged')
             elif self.pull_request.is_mergeable:
                 return ('default', 'open')

@@ -18,9 +18,13 @@ Repositories
 
 ''')
             runtime = self.runtime
-            for repository in runtime.repositories.values():
+            repos = [k[1] for k in sorted(runtime.repositories.items(), key=lambda x: x[0])]
+            for repository in repos:
                 repo = repository
-                f.write('%s\n%s\n' % (repository.name, str('{:-^%s}' % str(len(repository.name))).format('-')))
+                f.write('%s\n' % repository.name)
+                for i in xrange(0, len(repository.name)):
+                    f.write('-')
+                f.write('\n')
 
                 if not repository.internal:
                     f.write('Repository has no internal remote\n')
@@ -45,7 +49,7 @@ Repositories
                     if len(repo.upstream.tickets) > 0:
                         f.write('Upstream tickets:\n\n')
                         for ticket in repo.upstream.tickets:
-                            f.write(' * %s%s - %s - %s\n   %s\n' % (repository.upstream.ticket_prefix, ticket.reference, ticket.external.status[1], ticket.external.title))
+                            f.write(' * %s%s - %s - %s\n   %s\n' % (repository.upstream.ticket_prefix, ticket.reference, ticket.external.status[1], ticket.external.title, ticket.url))
                         f.write('\n\n')
                     if repo.behind > 0:
                         f.write('Repo is behind upstream.\n\n')

@@ -24,7 +24,7 @@ class Ticket:
         else:
             if self.pull_request.is_merged():
                 return ('info', 'closed/merged')
-            elif self.pull_request.is_mergeable:
+            elif self.pull_request.mergeable:
                 return ('default', 'open')
             else:
                 return ('danger', 'open/not mergeable')

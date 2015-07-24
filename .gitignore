@@ -1,7 +1,10 @@
 *.pyc
+*.ini
+local/
 reports/*.html
 *-upstream
 *-internal
+triage.txt
 bin
 lib
 include

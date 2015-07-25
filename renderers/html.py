@@ -65,7 +65,7 @@ class Renderer(object):
                         print repository.internal.name
                         print diff.repo1.module().working_dir
                         codediff = CodeDiffer(repository.internal.name, os.path.relpath(diff.repo1.module().working_dir),
-                                'reports/%s-d-%s' % (repository.name, diff.target),
+                                'reports/%s-d-%s' % (repository.name, diff.target), wrap_num=80,
                                 title='Diff between %s and its submodule in %s' % (repository.name, diff.target)
                                 )
                         codediff.make_diff()

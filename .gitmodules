@@ -1,0 +1,3 @@
+[submodule "coderev"]
+	path = coderev
+	url = https://github.com/Inuits/coderev

@@ -84,6 +84,9 @@
 {% if diff.behind == 0 and diff.ahead == 0 %}
 <div class="state state-open">This repository is up-to-date {%if diff.target != "upstream"%}in super repository{%else%}with{%endif%} {{diff.target}}.</div>
 {%else%}
+{%if codediff%}
+<div class="text-center"><a class="btn btn-large btn-primary" href="{{repository.name}}-d-{{diff.target}}/index.html">Diff</a></div>
+{%endif%}
 {% if diff.common_commits|length == 0 %}
 <div class="alert alert-danger">The repositories have no common commits, they seem to be different!</div>
 {%endif%}

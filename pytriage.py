@@ -496,7 +496,6 @@ class TriageRuntime:
             renderer = getattr(loadedplugin, report).Renderer
             renderer(self).render()
 
-
-
 if __name__ == '__main__':
     TriageRuntime().run()
+

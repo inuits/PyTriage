@@ -72,7 +72,7 @@ class Renderer(object):
                                 codediff = CodeDiffer(repository.internal.name, os.path.relpath(diff.repo1.module().working_dir),
                                         'reports/%s-d-%s' % (repository.name, diff.target), wrap_num=80,
                                         title='Diff between %s and its submodule in %s' % (repository.name, diff.target),
-                                        show_common_files = True,
+                                        show_common_files = False,
                                         )
                                 codediff._index_template = f.read()
                                 codediff._style_template = css.read()

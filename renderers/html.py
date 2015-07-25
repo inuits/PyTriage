@@ -54,19 +54,27 @@ class Renderer(object):
             with open('reports/report-%s.html' % repository.name, 'w') as f:
                 f.write(repo_template.render(runtime = runtime, repository = repository, gdate = ctime(), codediff=CODEDIFF))
             if CODEDIFF and repository.internal:
-                if repository.upstream:
-                    codediff = CodeDiffer(repository.internal.name, repository.upstream.name,
-                            'reports/%s-d-%s' % (repository.name, repository.diff.target),
-                             title='Diff between %s and upstream' % repository.name
-                            )
-                    codediff.make_diff()
-                for (name, diff) in repository.diffs.items():
-                    if diff.is_valid:
-                        print repository.internal.name
-                        print diff.repo1.module().working_dir
-                        codediff = CodeDiffer(repository.internal.name, os.path.relpath(diff.repo1.module().working_dir),
-                                'reports/%s-d-%s' % (repository.name, diff.target), wrap_num=80,
-                                title='Diff between %s and its submodule in %s' % (repository.name, diff.target)
-                                )
-                        codediff.make_diff()
+                with open('templates/codediff.html') as f:
+                    with open('templates/codediff.css') as css:
+                        if repository.upstream:
+                            codediff = CodeDiffer(repository.internal.name, repository.upstream.name,
+                                    'reports/%s-d-%s' % (repository.name, repository.diff.target),
+                                    title='Diff between %s and upstream' % repository.name,
+                                    show_common_files = True,
+                                    )
+                            codediff._index_template = f.read()
+                            codediff._style_template = css.read()
+                            codediff.make_diff()
+                        for (name, diff) in repository.diffs.items():
+                            if diff.is_valid:
+                                print repository.internal.name
+                                print diff.repo1.module().working_dir
+                                codediff = CodeDiffer(repository.internal.name, os.path.relpath(diff.repo1.module().working_dir),
+                                        'reports/%s-d-%s' % (repository.name, diff.target), wrap_num=80,
+                                        title='Diff between %s and its submodule in %s' % (repository.name, diff.target),
+                                        show_common_files = True,
+                                        )
+                                codediff._index_template = f.read()
+                                codediff._style_template = css.read()
+                                codediff.make_diff()
 

@@ -6,4 +6,5 @@ bin
 lib
 include
 reports?
+reports/*-d-*
 pip-selfcheck.json

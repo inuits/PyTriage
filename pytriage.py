@@ -387,13 +387,16 @@ class TriageRuntime:
         self.renderers = []
         self.extra_heading = None
         logging.debug('Setting configuration')
+        self.config = {}
         for (key, val) in config.items(section):
             if key == 'title':
                 self.title = val
-            if key == 'extra_heading':
+            elif key == 'extra_heading':
                 self.extra_heading = val
-            if key == 'renderers':
+            elif key == 'renderers':
                 self.renderers = val.split()
+            else:
+                self.config[key] = val
 
     def set_defaults(self, config, section):
         logging.debug('Setting defaults')

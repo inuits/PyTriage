@@ -118,6 +118,7 @@ class CommitDiff(TriageObject):
         self.reposrc2 = src2
         self.behind = None
         self.ahead = None
+        self.diffurl = None
         if self.is_valid:
             self.run()
 
@@ -155,6 +156,14 @@ class CommitDiff(TriageObject):
 
         self.behind = len(self.unique_commits[self.repo2.name])
         self.ahead = len(self.unique_commits[self.repo1.name])
+
+        if (self.behind > 0 or self.ahead > 0) and self.reposrc1 == self.reposrc2 and \
+        self.reposrc1.properties.has_key('diff'):
+            self.diffurl = fmt.format(self.reposrc1.properties['diff'], commit1=self.repo1.module().commit().hexsha,
+                            commit2=self.repo2.module().commit().hexsha)
+        else:
+            self.diffurl = None
+
 
 
 class Remote(TriageObject):

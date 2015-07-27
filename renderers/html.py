@@ -56,7 +56,7 @@ class Renderer(object):
             if CODEDIFF and repository.internal:
                 with open('templates/codediff.html') as f:
                     with open('templates/codediff.css') as css:
-                        if repository.upstream:
+                        if repository.upstream and not repository.diff.diffurl:
                             codediff = CodeDiffer(repository.internal.name, repository.upstream.name,
                                     'reports/%s-d-%s' % (repository.name, repository.diff.target),
                                     title='Diff between %s and upstream' % repository.name,
@@ -66,7 +66,7 @@ class Renderer(object):
                             codediff._style_template = css.read()
                             codediff.make_diff()
                         for (name, diff) in repository.diffs.items():
-                            if diff.is_valid:
+                            if diff.is_valid and not diff.diffurl:
                                 print repository.internal.name
                                 print diff.repo1.module().working_dir
                                 codediff = CodeDiffer(repository.internal.name, os.path.relpath(diff.repo1.module().working_dir),

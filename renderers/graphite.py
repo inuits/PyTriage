@@ -37,6 +37,7 @@ class Renderer(object):
                 prefix = 'pytriage'
             else:
                 prefix = self.runtime.config['graphite_prefix']
+            logging.info('Sending data to graphite')
             g = graphitesend.init(prefix=prefix, system_name='', graphite_server=self.runtime.config['graphite_host'])
             g.send_dict(metrics)
 

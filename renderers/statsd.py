@@ -39,6 +39,7 @@ class Renderer(object):
                 prefix = self.runtime.config['graphite_prefix']
             c = statsd.StatsClient(self.runtime.config['graphite_host'], 8125, prefix=prefix)
             for (m, v) in metrics.items:
+                logging.debug("Sending a gauge to statsd: %s, %s" % (m, v))
                 c.gauge(m, v)
 
 

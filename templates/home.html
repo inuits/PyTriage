@@ -12,7 +12,9 @@
         <th class="text-center">Internal</th>
         <th class="text-center">Upstream</th>
         <th class="text-center" data-sortable="true">To push</th>
+        <th class="hide" >To push</th>
         <th class="text-center" data-sortable="true">To pull</th>
+        <th class="hide" >To pull</th>
         <th class="text-center">Internal tickets</th>
         <th class="text-center">Upstream tickets</th>
         <th class="text-center">Super repositories</th>
@@ -24,8 +26,14 @@
         <td class="text-center"><a class="btn btn-xs btn-{{repository.status_color()}}" href="report-{{ repository.name }}.html">{{ repository.name }}</a></td>
         <td class="text-center">{% if repository.internal %}<a class="btn btn-xs btn-default" href="{{repository.internal.http_address}}">{{repository.internal.source.name}}<a>{%else%}-{%endif%}</td>
         <td class="text-center">{% if repository.upstream %}<a class="btn btn-xs btn-default" href="{{repository.upstream.http_address}}">{{repository.upstream.source.name}}<a>{%else%}-{%endif%}</td>
-        <td class="text-center">{{repository.ahead|numberfilter}}</td>
-        <td class="text-center">{{repository.behind|numberfilter}}</td>
+        <td class="hide">{{repository.ahead}}</td>
+        <td class="text-center">
+            <span class="label label-{{repository.ahead|numberclassfilter(repository.diff)}}">{{repository.ahead|numberfilter}}</span>
+        </td>
+        <td class="hide">{{repository.behind}}</td>
+        <td class="text-center">
+            <span class="label label-{{repository.behind|numberclassfilter(repository.diff)}}">{{repository.behind|numberfilter}}</span>
+        </td>
         <td class="text-center">{% if repository.internal %}{% if repository.internal.tickets|length > 0 %}{% for ticket in repository.internal.tickets-%}
             <a class="btn btn-xs btn-{{ticket.external.status[0]}}" href="{{ticket.url}}">{{repository.internal.ticket_prefix}}{{ticket.reference}}</a>
 {%endfor%}{%else%}-{%endif%}{%else%}-{%endif%}</td class="text-center">

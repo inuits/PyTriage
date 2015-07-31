@@ -5,27 +5,35 @@
 <h1>Overview - {{runtime.title}}</h1>
 {%if runtime.extra_heading%}{{runtime.extra_heading}}{%endif%}
 <p>See at bottom for the legend.</p>
-<table class="table table-bordered table-striped">
+<table class="table table-bordered table-striped" data-toggle="table">
+  <thead>
     <tr>
         <th class="text-center">Name</th>
         <th class="text-center">Internal</th>
         <th class="text-center">Upstream</th>
-        <th class="text-center">To push</th>
-        <th class="text-center">To pull</th>
+        <th class="text-center" data-sortable="true">To push</th>
+        <th class="hide" >To push</th>
+        <th class="text-center" data-sortable="true">To pull</th>
+        <th class="hide" >To pull</th>
         <th class="text-center">Internal tickets</th>
         <th class="text-center">Upstream tickets</th>
         <th class="text-center">Super repositories</th>
     </tr>
+  </thead>
+  <tbody>
 {% for repository in repos %}
     <tr>
         <td class="text-center"><a class="btn btn-xs btn-{{repository.status_color()}}" href="report-{{ repository.name }}.html">{{ repository.name }}</a></td>
         <td class="text-center">{% if repository.internal %}<a class="btn btn-xs btn-default" href="{{repository.internal.http_address}}">{{repository.internal.source.name}}<a>{%else%}-{%endif%}</td>
         <td class="text-center">{% if repository.upstream %}<a class="btn btn-xs btn-default" href="{{repository.upstream.http_address}}">{{repository.upstream.source.name}}<a>{%else%}-{%endif%}</td>
-                <td class="text-center">
-                    <span class="label label-{{repository.ahead|numberclassfilter(repository.diff)}}">{{repository.ahead|numberfilter}}</span></td>
+        <td class="hide">{{repository.ahead}}</td>
         <td class="text-center">
-            <span class="label label-{{repository.behind|numberclassfilter(repository.diff)}}">{{repository.behind|numberfilter}}</span></td>
-
+            <span class="label label-{{repository.ahead|numberclassfilter(repository.diff)}}">{{repository.ahead|numberfilter}}</span>
+        </td>
+        <td class="hide">{{repository.behind}}</td>
+        <td class="text-center">
+            <span class="label label-{{repository.behind|numberclassfilter(repository.diff)}}">{{repository.behind|numberfilter}}</span>
+        </td>
         <td class="text-center">{% if repository.internal %}{% if repository.internal.tickets|length > 0 %}{% for ticket in repository.internal.tickets-%}
             <a class="btn btn-xs btn-{{ticket.external.status[0]}}" href="{{ticket.url}}">{{repository.internal.ticket_prefix}}{{ticket.reference}}</a>
 {%endfor%}{%else%}-{%endif%}{%else%}-{%endif%}</td class="text-center">
@@ -41,6 +49,7 @@
 </td>
 </tr>
 {%endfor%}
+</tbody>
 </table>
 {%if runtime.unchecked_modules|length > 0%}
 <h2>Submodules not in this list</h2>

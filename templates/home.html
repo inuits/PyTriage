@@ -8,7 +8,8 @@
 <table class="table table-bordered table-striped" data-toggle="table">
   <thead>
     <tr>
-        <th class="text-center">Name</th>
+        <th class="text-center" data-sortable="true">Name</th>
+        <th class="hide">Name</th>
         <th class="text-center">Internal</th>
         <th class="text-center">Upstream</th>
         <th class="text-center" data-sortable="true">To push</th>
@@ -23,6 +24,7 @@
   <tbody>
 {% for repository in repos %}
     <tr>
+        <td class="hide">{{ repository.name }}</td>
         <td class="text-center"><a class="btn btn-xs btn-{{repository.status_color()}}" href="report-{{ repository.name }}.html">{{ repository.name }}</a></td>
         <td class="text-center">{% if repository.internal %}<a class="btn btn-xs btn-default" href="{{repository.internal.http_address}}">{{repository.internal.source.name}}<a>{%else%}-{%endif%}</td>
         <td class="text-center">{% if repository.upstream %}<a class="btn btn-xs btn-default" href="{{repository.upstream.http_address}}">{{repository.upstream.source.name}}<a>{%else%}-{%endif%}</td>

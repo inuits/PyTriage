@@ -13,3 +13,4 @@ smmap==0.9.0
 uritemplate.py==0.3.0
 xunitgen==0.1.6
 graphitesend==0.3.4
+statsd==3.1

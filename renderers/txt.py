@@ -47,22 +47,8 @@ Repositories
                         f.write('\n\n')
                     if repo.behind > 0:
                         f.write('Repo is behind upstream.\n\n')
-                        f.write('Is there already a ticket for that? yes-no\n')
-                        f.write('Ticket number:\n')
-                        f.write('Do the upstream changes look trivial? yes-no\n')
-                        f.write('Comments:\n')
-                        f.write('\n')
-                        f.write('\n')
                     if repo.ahead > 0:
                         f.write('Repository is ahead upstream.\n\n')
-                        f.write('Is there already a ticket for that? yes-no\n')
-                        f.write('Ticket number:\n')
-                        f.write('Do the internal changes look trivial? yes-no\n')
-                        f.write('Do the local commits include Inuits specific code? yes-no\n')
-                        f.write('Does the local code have good quality? yes-no\n')
-                        f.write('Comments:\n')
-                        f.write('\n')
-                        f.write('\n')
 
                     for diff in repo.diffs.values():
                         if diff.behind is not None:
@@ -70,16 +56,10 @@ Repositories
                                 pass
                             else:
                                 f.write('Repository is %s commits behind in super repo %s!\n\n' % (diff.behind, diff.target))
-                                f.write('Is there already a ticket for that?\n')
-                                f.write('Ticket number:\n')
-                                f.write('Comments:\n\n\n')
                             if diff.ahead == 0:
                                 pass
                             else:
                                 f.write('Repository is %s commits ahead in super repo %s!\n\n' % (diff.ahead, diff.target))
-                                f.write('Is there already a ticket for that?\n')
-                                f.write('Ticket number:\n')
-                                f.write('Comments:\n\n\n')
 
 
                 f.write('\n')

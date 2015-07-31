@@ -118,10 +118,21 @@ class CommitDiff(TriageObject):
         self.reposrc2 = src2
         self.behind = None
         self.ahead = None
+        self.diffurl = None
         if self.is_valid:
             self.run()
 
     def run(self):
+        self.unique_commits = {self.repo1.name: [], self.repo2.name: []}
+        self.common_commits = []
+
+        if self.repo1.module().commit().hexsha == self.repo2.module().commit().hexsha:
+            logging.debug('Same commit: %s' % self.repo1.module().commit().hexsha)
+            self.common_commits = [TriageCommit(self.reposrc1,c,self,'Unique Commit') for c in list(self.repo1.module().iter_commits()) if len(c.parents) < 2 ]
+            self.ahead = 0
+            self.behind = 0
+            return
+
         commits = {}
         commits[self.repo1.name] = []
         commits[self.repo2.name] = []
@@ -138,7 +149,6 @@ class CommitDiff(TriageObject):
                         self.unique_commits[repoa.name].append(TriageCommit(src,commit,self,'Commit'))
         (repoa, repob) = (self.repo1, self.repo2)
 
-        self.common_commits = []
         for commit in repoa.module().iter_commits():
             if len(commit.parents) < 2:
                 if commit.hexsha in commits[repob.name]:
@@ -146,6 +156,14 @@ class CommitDiff(TriageObject):
 
         self.behind = len(self.unique_commits[self.repo2.name])
         self.ahead = len(self.unique_commits[self.repo1.name])
+
+        if (self.behind > 0 or self.ahead > 0) and self.reposrc1 == self.reposrc2 and \
+        self.reposrc1.properties.has_key('diff'):
+            self.diffurl = fmt.format(self.reposrc1.properties['diff'], commit1=self.repo1.module().commit().hexsha,
+                            commit2=self.repo2.module().commit().hexsha)
+        else:
+            self.diffurl = None
+
 
 
 class Remote(TriageObject):
@@ -207,8 +225,9 @@ class Repository(TriageObject):
         for (key, val) in remote_obj.source.properties.items():
             if not remote_obj.properties.has_key(key):
                 remote_obj.add_property(key, fmt.vformat(val, [], remote_obj.properties))
-        if remote == 'internal':
+        if remote == 'internal' and not self.check_property('super'):
             self.runtime.modules_urls.add(normalizegiturl(remote_obj.url))
+        if remote == 'internal':
             self.internal = remote_obj
         else:
             self.upstream = remote_obj
@@ -375,12 +394,18 @@ class TriageRuntime:
 
     def set_config(self, config, section):
         self.renderers = []
+        self.extra_heading = None
         logging.debug('Setting configuration')
+        self.config = {}
         for (key, val) in config.items(section):
             if key == 'title':
                 self.title = val
-            if key == 'renderers':
+            elif key == 'extra_heading':
+                self.extra_heading = val
+            elif key == 'renderers':
                 self.renderers = val.split()
+            else:
+                self.config[key] = val
 
     def set_defaults(self, config, section):
         logging.debug('Setting defaults')
@@ -483,7 +508,6 @@ class TriageRuntime:
             renderer = getattr(loadedplugin, report).Renderer
             renderer(self).render()
 
-
-
 if __name__ == '__main__':
     TriageRuntime().run()
+

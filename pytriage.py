@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 import logging
 import argparse
+import os.path
 from git import Repo
 from string import Formatter
 from configparser import ConfigParser
 from git.exc import InvalidGitRepositoryError
 
 class NamedRepo(Repo):
-    def __init__(self, name, *args, **kwargs):
+    def __init__(self, path, name, *args, **kwargs):
         self.name=name
-        return super(NamedRepo, self).__init__(*args, **kwargs)
+        return super(NamedRepo, self).__init__(path, *args, **kwargs)
     def module(self):
         return self
 
@@ -244,7 +245,7 @@ class Repository(TriageObject):
 
     def get_level2_submodule(self, url):
         try:
-            this_repo = NamedRepo('%s-internal' % self.name, '%s-internal' % self.name)
+            this_repo = NamedRepo(os.path.join(self.runtime.subdir, '%s-internal' % self.name), '%s-internal' % self.name)
             return [u for u in this_repo.submodules if normalizegiturl(u.url) == normalizegiturl(url)][0]
         except IndexError:
             return None
@@ -257,10 +258,10 @@ class Repository(TriageObject):
         if self.check_property('super') and remote.status == 'upstream':
             return
         try:
-            repo = NamedRepo(remote.name, remote.name)
+            repo = NamedRepo(os.path.join(self.runtime.subdir, remote.name), remote.name)
         except:
-            Repo.init(remote.name)
-            repo = NamedRepo(remote.name, remote.name)
+            Repo.init(os.path.join(self.runtime.subdir, remote.name))
+            repo = NamedRepo(os.path.join(self.runtime.subdir, remote.name), remote.name)
         try:
             gitremote = repo.remotes.origin
         except:
@@ -354,11 +355,14 @@ class TriageRuntime:
                 Please take a look at the examples directory for some configurations.''',
                 epilog='''Distributed under the GPL License, version 2. See LICENSE.txt''')
         parser.add_argument('config', help='configuration file to use')
+        parser.add_argument('--subdir', help='subdirectory', default='gitrepos')
         parser.add_argument('--debug', '-d', help='Print debug information', action='store_true')
         args = parser.parse_args()
         if args.debug:
             logging.basicConfig(level=logging.DEBUG)
         self.config_file = args.config
+        self.subdir = args.subdir
+        print self.subdir
 
     def get_section_type(self, section):
         if section == 'config':
@@ -445,8 +449,8 @@ class TriageRuntime:
             if len(filter(None, (repository.upstream, repository.internal))) == 2:
                 logging.debug('Comparing repository %s with upstream' % name)
                 sm = {}
-                sm['upstream'] = NamedRepo(repository.upstream.name, repository.upstream.name)
-                sm['internal'] = NamedRepo(repository.internal.name, repository.internal.name)
+                sm['upstream'] = NamedRepo(os.path.join(self.subdir, repository.upstream.name), repository.upstream.name)
+                sm['internal'] = NamedRepo(os.path.join(self.subdir, repository.internal.name), repository.internal.name)
                 diff = CommitDiff(sm['internal'], sm['upstream'], 'upstream', repository.internal, repository.upstream, self, 'Diff between %s and %s' % (repository.internal.name, repository.upstream.name))
                 repository.diff = diff
                 repository.behind = diff.behind
@@ -458,7 +462,7 @@ class TriageRuntime:
         if repository.internal:
             logging.debug('Comparing repository %s with super repo %s' % (name, super_repo.name))
             sm = {}
-            sm['internal'] = NamedRepo(repository.internal.name, repository.internal.name)
+            sm['internal'] = NamedRepo(os.path.join(self.subdir, repository.internal.name), repository.internal.name)
             sm['super'] = super_repo.get_level2_submodule(repository.internal.url)
             diff = CommitDiff(sm['super'], sm['internal'], super_repo.name, repository.internal, repository.internal, self, 'Status of %s in %s' % (repository.internal.name, super_repo.internal.name))
             repository.diffs[super_repo.short_identifier] = diff

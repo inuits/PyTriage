@@ -57,7 +57,7 @@ class Renderer(object):
                 with open('templates/codediff.html') as f:
                     with open('templates/codediff.css') as css:
                         if repository.upstream and not repository.diff.diffurl:
-                            codediff = CodeDiffer(repository.internal.name, repository.upstream.name,
+                            codediff = CodeDiffer(os.path.join(self.runtime.subdir, repository.internal.name), os.path.join(self.runtime.subdir, repository.upstream.name),
                                     'reports/%s-d-%s' % (repository.name, repository.diff.target),
                                     title='Diff between %s and upstream' % repository.name,
                                     show_common_files = True,
@@ -69,7 +69,7 @@ class Renderer(object):
                             if diff.is_valid and not diff.diffurl:
                                 print repository.internal.name
                                 print diff.repo1.module().working_dir
-                                codediff = CodeDiffer(repository.internal.name, os.path.relpath(diff.repo1.module().working_dir),
+                                codediff = CodeDiffer(os.path.join(self.runtime.subdir, repository.internal.name), os.path.relpath(diff.repo1.module().working_dir),
                                         'reports/%s-d-%s' % (repository.name, diff.target), wrap_num=80,
                                         title='Diff between %s and its submodule in %s' % (repository.name, diff.target),
                                         show_common_files = False,

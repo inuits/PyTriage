@@ -301,7 +301,7 @@ class Repository(TriageObject):
                             sm.update(force=True, recursive=False)
                         else:
                             logging.debug('%s is up to date at %s...' % (sm.path, sm.hexsha))
-                    except InvalidGitRepositoryError:
+                    except (InvalidGitRepositoryError, ValueError):
                         logging.debug('Fetching %s...' % sm.path)
                         sm.update(force=True, recursive=False)
 
